@@ -8,7 +8,7 @@ function f = approx_t(x, y, Conf_Bit_Mask, WIDTH)
     % 返回:
     %   f: 近似乘法结果 (长度为 2*WIDTH)
 
-    % delta_f(0)
+    % delta_f(0)  
     delta_f0 = (bitshift(1, WIDTH-1) + x) + (bitshift(1, WIDTH-1) + y) ...
              + bitshift((bitshift(1, WIDTH-1) + x) + (bitshift(1, WIDTH-1) + y), -1) ...
              - bitshift(2, WIDTH-2) - bitshift(1, WIDTH-3);

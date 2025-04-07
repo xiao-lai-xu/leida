@@ -1,0 +1,53 @@
+function R = unsigned_int_mul(A, B, Conf_Bit_Mask, WIDTH)
+% Author: Y
+% Date: 2024/5/29
+% Description: UNSIGNED INTEGER MULTIPLICATION using Approx-T
+% Note: Support for configurable precision via Conf_Bit_Mask
+
+% Input:
+%   A, B            - Unsigned integers (0 ~ 2^WIDTH-1)
+%   Conf_Bit_Mask   - Bitmask vector for configurable approximation
+%   WIDTH           - Width of operands (e.g., 8)
+% Output:
+%   R               - Result of approximate unsigned multiplication (0 ~ 2^(2*WIDTH)-1)
+
+    if nargin < 4
+        WIDTH = 8; % default
+    end
+
+    % Convert inputs to binary vectors (MSB first)
+    A_bin = de2bi(A, WIDTH, 'left-msb');
+    B_bin = de2bi(B, WIDTH, 'left-msb');
+
+    % --- LEADING ONE DETECTION ---
+    a_ho_pos = leading_one_detector(A_bin); % 0-based
+    b_ho_pos = leading_one_detector(B_bin); % 0-based
+    ab_ho_pos = a_ho_pos + b_ho_pos;
+
+    % --- SHIFTER ---
+    w_A = bitshift(A, -(WIDTH - 1 - a_ho_pos));
+    w_B = bitshift(B, -(WIDTH - 1 - b_ho_pos));
+
+    % Clip to WIDTH-1 bits (like Verilog [WIDTH-2:0])
+    w_A = bitand(w_A, 2^(WIDTH-1)-1);
+    w_B = bitand(w_B, 2^(WIDTH-1)-1);
+
+    % --- APPROX-T ---
+    f = approx_t(w_A, w_B, Conf_Bit_Mask);
+
+    % --- FINAL SHIFTER ---
+    if A ~= 0 && B ~= 0
+        if ab_ho_pos >= WIDTH
+            shift_amt = ab_ho_pos - WIDTH + 1;
+            R = bitshift(uint32(f)*2, shift_amt); % << with f << 1 = {f,1'b0}
+        else
+            shift_amt = WIDTH - 1 - ab_ho_pos;
+            R = bitshift(f, -shift_amt);          % >> shift
+        end
+    else
+        R = 0;
+    end
+
+    % Limit to 2*WIDTH bits
+    R = bitand(R, 2^(2*WIDTH)-1);
+end

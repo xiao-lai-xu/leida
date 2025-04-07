@@ -1,37 +1,37 @@
 module mod_squared_unit(
-    input clk,
-    input reset,
-    input [7:0] x,
-    input [7:0] y,
+    input [15:0] x,
+    input [15:0] y,
     input [7:0] conf_bit_mask,
     
-    output reg [15:0] r
+    output reg [30:0] r
 );
-    wire [15:0] mul_r;
-    wire [15:0] mul_r1;
+    wire [30:0] mul_r1;
+    wire [30:0] mul_r2;
     
-    fixed_int_mul #(.WIDTH(8), .DEC_POINT_POS(4)) m_fixed_int_mul(
+    //----------------------近似乘法器-------------------------------------------------
+    fixed_int_mul #(.WIDTH(8), .DEC_POINT_POS(4)) m_fixed_int_mul_x(
         .A(x),
+        .B(x),
+        .Conf_Bit_Mask(conf_bit_mask),
+        .R(mul_r1)
+    );
+    fixed_int_mul #(.WIDTH(8), .DEC_POINT_POS(4)) m_fixed_int_mul_y(
+        .A(y),
         .B(y),
         .Conf_Bit_Mask(conf_bit_mask),
-        .R(mul_r)
+        .R(mul_r2)
     );
     
-    bit_mask_sel #(.WIDTH(16)) m_bit_mask_sel(
-        .sel(conf_bit_mask[1:0]),
-        .x(mul_r),
-        .y(16'b0),
-        .r(mul_r1)
-    );
+    assign  r = mul_r1 + mul_r2;
     
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            r <= 16'b0;
-        end else begin
-            r <= mul_r1;
-        end
-    end
-);
+ //------------------------普通乘法-----------求模方------------------------------
+ assign mul_r1 = x * x;
+ assign mul_r2 = y * y;
+ assign r = mul_r1 + mul_r2;
+
+
+
+    
 
 
 
