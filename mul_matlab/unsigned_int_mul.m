@@ -1,53 +1,42 @@
-function R = unsigned_int_mul(A, B, Conf_Bit_Mask, WIDTH)
-% Author: Y
-% Date: 2024/5/29
-% Description: UNSIGNED INTEGER MULTIPLICATION using Approx-T
-% Note: Support for configurable precision via Conf_Bit_Mask
+function R = unsigned_int_mul(A, B, Conf_Bit_Mask, width)
+% UNSIGNED_INT_MUL: 利用 Approx-T 实现无符号整数乘法。
+% A, B 为 width 位无符号数。
+% Conf_Bit_Mask 用于控制近似乘法的精度。
+% 返回 R 为 2*width 位结果。
 
-% Input:
-%   A, B            - Unsigned integers (0 ~ 2^WIDTH-1)
-%   Conf_Bit_Mask   - Bitmask vector for configurable approximation
-%   WIDTH           - Width of operands (e.g., 8)
-% Output:
-%   R               - Result of approximate unsigned multiplication (0 ~ 2^(2*WIDTH)-1)
+N = width * 2;
 
-    if nargin < 4
-        WIDTH = 8; % default
-    end
+% 找到 A, B 最高有效位( MSB )的位置
+a_pos = leading_one_detector(A, width);
+b_pos = leading_one_detector(B, width);
 
-    % Convert inputs to binary vectors (MSB first)
-    A_bin = de2bi(A, WIDTH, 'left-msb');
-    B_bin = de2bi(B, WIDTH, 'left-msb');
+% 归一化 A, B，使得最高 '1' 位移动到 MSB 处
+w_A = bitshift(A, (width-1) - a_pos);
+w_B = bitshift(B, (width-1) - b_pos);
 
-    % --- LEADING ONE DETECTION ---
-    a_ho_pos = leading_one_detector(A_bin); % 0-based
-    b_ho_pos = leading_one_detector(B_bin); % 0-based
-    ab_ho_pos = a_ho_pos + b_ho_pos;
+% 去掉隐含的 1（只保留 width-1 位小数）
+w_A = bitand(w_A, bitshift(1, width-1) - 1);
+w_B = bitand(w_B, bitshift(1, width-1) - 1);
 
-    % --- SHIFTER ---
-    w_A = bitshift(A, -(WIDTH - 1 - a_ho_pos));
-    w_B = bitshift(B, -(WIDTH - 1 - b_ho_pos));
+% 用近似乘法器对归一化后的分数部分做运算
+f = approx_t(w_A, w_B, Conf_Bit_Mask, width);
 
-    % Clip to WIDTH-1 bits (like Verilog [WIDTH-2:0])
-    w_A = bitand(w_A, 2^(WIDTH-1)-1);
-    w_B = bitand(w_B, 2^(WIDTH-1)-1);
-
-    % --- APPROX-T ---
-    f = approx_t(w_A, w_B, Conf_Bit_Mask);
-
-    % --- FINAL SHIFTER ---
-    if A ~= 0 && B ~= 0
-        if ab_ho_pos >= WIDTH
-            shift_amt = ab_ho_pos - WIDTH + 1;
-            R = bitshift(uint32(f)*2, shift_amt); % << with f << 1 = {f,1'b0}
-        else
-            shift_amt = WIDTH - 1 - ab_ho_pos;
-            R = bitshift(f, -shift_amt);          % >> shift
-        end
+% 去归一化，根据 a_pos + b_pos 调整结果
+if (A == 0) || (B == 0)
+    R = 0;
+else
+    ab_pos = a_pos + b_pos;
+    if ab_pos >= width
+        % 如果 MSB 累加 >= width，表示结果有溢出，需要左移
+        shift_amt = ab_pos - (width - 1);
+        R = mod(double(f) * 2^shift_amt, 2^N);
     else
-        R = 0;
+        % 否则右移
+        shift_amt = (width - 1) - ab_pos;
+        % 做“算术”解释：f 可能是 2*width 位，但这里仍以无符号来做
+        R_val = floor(double(f) / 2^shift_amt);
+        R = mod(R_val, 2^N);
     end
+end
 
-    % Limit to 2*WIDTH bits
-    R = bitand(R, 2^(2*WIDTH)-1);
 end

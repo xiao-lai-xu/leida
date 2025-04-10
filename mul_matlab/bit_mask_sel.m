@@ -1,25 +1,17 @@
-function r = bit_mask_sel(sel, x, y, WIDTH)
-    % bit_mask_sel: 实现 3:1 多路复用器
-    % 参数:
-    %   sel: 选择信号 (2 位)
-    %   x: 输入值 x (长度为 WIDTH)
-    %   y: 输入值 y (长度为 WIDTH)
-    %   WIDTH: 数据宽度
-    % 返回:
-    %   r: 输出值 (长度为 WIDTH)
+function r = bit_mask_sel(sel, x, y, N)
+% BIT_MASK_SEL: 3-to-1 multiplexer controlled by a 2-bit mask.
+% sel 为 2 位值：
+%   sel=0 或 sel=2 => r = 0
+%   sel=1 => r = x
+%   sel=3 => r = x + y
+% 由于要限制在 N 位宽范围内，所有运算对 2^N 取模。
 
-    % 初始化输出
-    r = zeros(1, WIDTH);  % 默认输出为全 0
+if sel == 1
+    r = mod(x, 2^N);
+elseif sel == 3
+    r = mod(x + y, 2^N);
+else
+    r = 0;
+end
 
-    % 根据选择信号 sel 选择输出
-    switch sel
-        case 0  % sel = 2'b00
-            r = zeros(1, WIDTH);  % 输出全 0
-        case 1  % sel = 2'b01
-            r = x;  % 输出 x
-        case 3  % sel = 2'b11
-            r = x + y;  % 输出 x + y
-        otherwise
-            r = zeros(1, WIDTH);  % 默认输出全 0
-    end
 end

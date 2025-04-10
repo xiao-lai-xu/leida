@@ -1,17 +1,30 @@
-% 参数设置
-WIDTH = 16;  % 数据宽度
-x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];  % 输入 x
-y = [16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];  % 输入 y
+%单个数测试
+width = 10;
+DEC_POINT_POS = 4;
+Conf_Bit_Mask = bin2dec('111111');
 
-% 测试不同的选择信号
-sel = 0;  % sel = 2'b00
-r = bit_mask_sel(sel, x, y, WIDTH);
-disp(['sel = 0, r = ', mat2str(r)]);
+% A_real = -0.625;
+% B_real = -0.5;
+A_real = -7.45726586;
+B_real = -6.2322576;
 
-sel = 1;  % sel = 2'b01
-r = bit_mask_sel(sel, x, y, WIDTH);
-disp(['sel = 1, r = ', mat2str(r)]);
+A_fixed = round(A_real * 16);  % -10
+B_fixed = round(B_real * 16);  % -8
 
-sel = 3;  % sel = 2'b11
-r = bit_mask_sel(sel, x, y, WIDTH);
-disp(['sel = 3, r = ', mat2str(r)]);
+R_fixed = fixed_point_mul(A_fixed, B_fixed, Conf_Bit_Mask, width, DEC_POINT_POS);
+
+% 二补码解码
+if R_fixed >= 2^15
+    R_signed = R_fixed - 2^16;
+else
+    R_signed = R_fixed;
+end
+
+R_real = R_signed / 16;
+
+fprintf("ApproxResult = %.4f, True = %.4f\n", R_real, A_real * B_real);
+
+
+
+
+
