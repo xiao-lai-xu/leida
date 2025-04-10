@@ -4,7 +4,9 @@ width = 15;
 DEC_POINT_POS = 8;
 Conf_Bit_Mask = bin2dec('111111');
 
-vals = -8:0.25:7.75;
+% vals = -8:0.25:7.75;
+% vals = -128:1/256:127.99609375;
+vals = -20:1/128:20.99609375;
 err_list = [];
 
 for A = vals
