@@ -6,7 +6,7 @@ Conf_Bit_Mask = bin2dec('111111');
 
 % vals = -8:0.25:7.75;
 % vals = -128:1/256:127.99609375;
-vals = -20:1/128:20.99609375;
+vals = -10:1/128:10.99609375;
 err_list = [];
 
 for A = vals
@@ -26,8 +26,8 @@ for A = vals
         true_result = A*B;
         err = R_real - true_result;
 
-        fprintf("A = %7.4f, B = %7.4f,  Approx = %9.4f,  True = %9.4f,  Error = %+8.4f\n", ...
-                A, B, R_real, true_result, err);
+        % fprintf("A = %7.4f, B = %7.4f,  Approx = %9.4f,  True = %9.4f,  Error = %+8.4f\n", ...
+        %         A, B, R_real, true_result, err);
 
         err_list(end+1) = err;
     end
