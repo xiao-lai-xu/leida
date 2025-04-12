@@ -17,16 +17,16 @@ module tb;
     stimulate m_stimulate(m_io);
 
     dut m_dut(
-        .clk(m_io.cb),
+        .clk(m_io.clock),
         .rst_n(m_io.reset_n),
-        .row_idx1(m_io.cb.row_idx1),
-        .col_idx1(m_io.cb.col_idx1),
-        .row_idx2(m_io.cb.row_idx2),
-        .col_idx2(m_io.cb.col_idx2),
-        .channel_num(m_io.cb.channel_num),
-        .data_start(m_io.cb.data_start),   
-        .data_end(m_io.cb.data_end),
-        .pixel_out(m_io.cb.pixel_out)
+        .row_idx1(m_io.row_idx1),
+        .col_idx1(m_io.col_idx1),
+        .row_idx2(m_io.row_idx2),
+        .col_idx2(m_io.col_idx2),
+        .channel_num(m_io.channel_num),
+        .data_start(m_io.data_start),   
+        .data_end(m_io.data_end),
+        .pixel_out(m_io.pixel_out)
     );
 
    endmodule

@@ -1,10 +1,5 @@
-interface radar_io#(
-    parameter DATA_WIDTH = 16,
-    parameter FRAME_NUM  = 4,
-    parameter IMG_ROWS = 2048,
-    parameter IMG_COLS = 2048
-)
-(input bit clock);
+interface radar_io(input bit clock);
+    parameter DATA_WIDTH = 16;
     logic reset_n;
     logic [10:0] row_idx1;
     logic [10:0] col_idx1;
@@ -26,10 +21,10 @@ interface radar_io#(
         inout data_start;
         inout data_end;
         inout pixel_out;
-    endclocking
+    endclocking:cb
 
     modport TB(clocking cb,output reset_n);
 
 
 
-endinterface
+endinterface:radar_io
