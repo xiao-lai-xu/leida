@@ -7,7 +7,7 @@ program automatic stimulate(radar_io.TB io);
     reg [DATA_WIDTH-1:0] image_mem[FRAME_NUM][IMG_ROWS-1:0][IMG_COLS-1:0];
  
 
-    integer i, j;
+    integer i, j,z;
     logic [11:0]  row,col;
     reg [2:0 ] wait_cnt ;
     reg [1:0] cnt;
@@ -15,11 +15,13 @@ program automatic stimulate(radar_io.TB io);
 
     // 初�?�化图像数据（仅用于仿真�?
     initial begin
+        for(z = 0;z<3;z=z+1)begin
         for (i = 0; i < IMG_ROWS; i = i + 1) begin
             for (j = 0; j < IMG_COLS; j = j + 1) begin
-                image_mem[1][i][j] = (i * IMG_COLS + j) % (2**DATA_WIDTH); // 示例数据
+                image_mem[z][i][j] = (i * IMG_COLS + j) % (2**DATA_WIDTH); // 示例数据
             end
         end
+    end
     end
 
     initial begin
@@ -98,7 +100,7 @@ program automatic stimulate(radar_io.TB io);
         task send();
             forever begin
             @(io.cb);
-            if(io.cb.row_idx2 < 2045 && io.cb.col_idx2< 2045)begin
+            if(io.cb.row_idx1 < 2045 && io.cb.col_idx2< 2045)begin
                 // 数据窗口读取 + 边界�?0
                 for(j=0;j<2;j=j+1)begin
                     for(i = 0;i<5;i=i+1)begin
@@ -115,7 +117,7 @@ program automatic stimulate(radar_io.TB io);
                 io.cb.data_start <= 1'b1;
             end
 
-            if(io.cb.channel_num >4)begin
+            if(io.cb.channel_num >3)begin
                 io.cb.data_end <= 1'b1;
                 io.cb.channel_num <= 4;
                 $finish();
