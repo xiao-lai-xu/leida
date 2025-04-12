@@ -78,6 +78,13 @@ program automatic stimulate(radar_io.TB io);
                 io.cb.row_idx1 <= io.cb.row_idx1 + 1;
                 io.cb.row_idx2 <= io.cb.row_idx2 + 1;
             end
+            else begin
+                io.cb.col_idx1 <=2;
+                io.cb.col_idx2 <=3;
+                wait_cnt <= 0;
+                io.cb.row_idx1 <= 2;
+                io.cb.row_idx2 <= 2;
+            end
             end
         endtask:get_real_row_col
 
@@ -91,6 +98,10 @@ program automatic stimulate(radar_io.TB io);
                 else if(row< IMG_ROWS-4) begin
                     col <= 0;
                     row <= row +1;
+                end
+                else begin
+                    col <= 0;
+                    row <= 0;
                 end
             end
         endtask:get_row_col
