@@ -30,6 +30,7 @@ program automatic stimulate(radar_io.TB io);
         io.cb.data_start <= 1'b0;
 
         fork
+            get_real_row_col();
             get_row_col();
             send();
         join_none
