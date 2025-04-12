@@ -70,8 +70,8 @@ program automatic stimulate(radar_io.TB io);
                 end
             end
             else if(io.cb.row_idx1< IMG_ROWS-1)begin
-                io.cb.row_idx1 <= 2;
-                io.cb.row_idx2 <= 3;
+                io.cb.col_idx1 <= 2;
+                io.cb.col_idx2 <= 3;
                 wait_cnt <= 0;
                 io.cb.row_idx1 <= io.cb.row_idx1 + 1;
                 io.cb.row_idx2 <= io.cb.row_idx2 + 1;
