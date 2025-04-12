@@ -14,7 +14,7 @@ module tb;
     end
 
     radar_io m_io(SystemClock);
-    stimulate m_stimulate(m_io);
+    stimulate_ture m_stimulate(m_io);
 
     dut m_dut(
         .clk(m_io.clock),

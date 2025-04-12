@@ -8,7 +8,7 @@ program automatic stimulate(radar_io.TB io);
  
 
     integer i, j;
-    logic signed [11:0] row,col;
+    logic [11:0]  row,col;
     reg [2:0 ] wait_cnt ;
     reg [1:0] cnt;
 
@@ -40,14 +40,14 @@ program automatic stimulate(radar_io.TB io);
             io.reset_n <= 1'b0;
             io.cb.data_start <= 0;
             io.cb.data_end <= 0;
-            io.cb.row_idx1 <= 0;
-            io.cb.col_idx1 <= 0;
-            io.cb.row_idx2 <= 0;
-            io.cb.col_idx2 <= 1;
+            io.cb.row_idx1 <= 2;
+            io.cb.col_idx1 <= 2;
+            io.cb.row_idx2 <= 2;
+            io.cb.col_idx2 <= 3;
+            row <= 0;
+            col <= 0;
             io.cb.channel_num <= 0;
             wait_cnt <= 0;
-            row <= -2;
-            col <= -2;
             #10ns;
             io.reset_n <= 1'b1;
             repeat(10)@(io.cb);
@@ -56,58 +56,57 @@ program automatic stimulate(radar_io.TB io);
 
        // 鎺у埗 row/col 鐨勬粦鍔ㄩ?昏緫
     
-   
-        task get_row_col();
+   //从（2，2）开始到（2045，2045）
+        task get_real_row_col();
             forever begin
             @(io.cb);
-            if (col < IMG_COLS) begin
-                    if(col<2 && wait_cnt <2 )begin
-                        wait_cnt <= wait_cnt + 1;
-                    end else if(col<IMG_COLS-2 )begin
-                        io.cb.col_idx1 <= col + 1; 
-                        io.cb.col_idx2 <= col + 1; 
-                    end 
-                    col <= col + 2; // 2鍒楁粦鍔?
-            end        
-            else begin
-                wait_cnt <= 0;
-                col <= -2;
-                io.cb.col_idx1 <= 0;
-                io.cb.col_idx2 <= 1;
-                if (row < IMG_ROWS + 1) begin
-                    row <= row + 1;
+            if(io.cb.col_idx2<IMG_COLS-2)begin
+                if(wait_cnt <2 )begin
+                    wait_cnt <= wait_cnt +1;
                 end else begin
-                    row <= 0;
-                end
-                //鐪熷疄绱㈠紩
-                if(io.cb.row_idx1 < IMG_ROWS-1)begin
-                    io.cb.row_idx1 <= io.cb.row_idx1 + 1; 
-                    io.cb.row_idx2 <= io.cb.row_idx2 + 1; 
-                end else begin
-                    io.cb.row_idx1 <= 0;
+                    io.cb.col_idx1 <= io.cb.col_idx1 + 2; 
+                    io.cb.col_idx2 <= io.cb.col_idx2 + 2; 
                 end
             end
+            else if(io.cb.row_idx1< IMG_ROWS-1)begin
+                io.cb.row_idx1 <= 2;
+                io.cb.row_idx2 <= 3;
+                wait_cnt <= 0;
+                io.cb.row_idx1 <= io.cb.row_idx1 + 1;
+                io.cb.row_idx2 <= io.cb.row_idx2 + 1;
+            end
+            end
+        endtask:get_real_row_col
+
+        //获取两列五行的开始坐标
+        task get_row_col();
+            forever begin
+                @(io.cb);
+                if(col < IMG_COLS-1) begin
+                    col <= col + 2;  //一拍输出两列
+                end        
+                else if(row< IMG_ROWS-4) begin
+                    col <= 0;
+                    row <= row +1;
+                end
             end
         endtask:get_row_col
- 
 
+
+ 
         task send();
             forever begin
             @(io.cb);
-            if(io.cb.row_idx1 <2048 && io.cb.col_idx2<2048)begin
+            if(io.cb.row_idx2 < 2045 && io.cb.col_idx2< 2045)begin
                 // 鏁版嵁绐楀彛璇诲彇 + 杈圭晫琛?0
                 for(j=0;j<2;j=j+1)begin
                     for(i = 0;i<5;i=i+1)begin
                         int idx = j*5 + i;
                         // 褰撳墠閫昏緫鍧愭爣锛堝寘鎷?琛?0鍖哄煙锛?
-                        if (row+i >= 0 && row+i < IMG_ROWS && col+j >= 0 && col+j < IMG_COLS) begin
                             io.cb.pixel_out[DATA_WIDTH*idx +: DATA_WIDTH] <= image_mem[io.cb.channel_num][row+j][col+i];  //补零逻辑有问题！
-                        end else begin
-                            io.cb.pixel_out[DATA_WIDTH*idx +: DATA_WIDTH] <= '0;
-                        end
                     end
                 end
-            end else if(io.cb.row_idx1 == 2047 && io.cb.col_idx2 == 2047)begin
+            end else if(io.cb.row_idx1 == 2045 && io.cb.col_idx2 == 2045)begin
                 io.cb.data_end <= 1'b1;
                 io.cb.channel_num <= io.cb.channel_num + 1;
             end else begin
