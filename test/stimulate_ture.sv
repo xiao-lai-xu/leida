@@ -3,7 +3,7 @@ program automatic stimulate(radar_io.TB io);
     parameter FRAME_NUM  = 4;
     parameter IMG_ROWS = 2048;
     parameter IMG_COLS = 2048;
-    // æ¨¡æ‹Ÿå›¾åƒæ•°æ®å­˜å‚¨å™?
+    // æ¨¡æ‹Ÿå›¾åƒæ•°æ®å­˜å‚¨ï¿½?
     reg [DATA_WIDTH-1:0] image_mem[FRAME_NUM][IMG_ROWS-1:0][IMG_COLS-1:0];
  
 
@@ -13,7 +13,7 @@ program automatic stimulate(radar_io.TB io);
     reg [1:0] cnt;
 
 
-    // åˆå?‹åŒ–å›¾åƒæ•°æ®ï¼ˆä»…ç”¨äºä»¿çœŸï¼?
+    // åˆï¿½?ï¿½åŒ–å›¾åƒæ•°æ®ï¼ˆä»…ç”¨äºä»¿çœŸï¿½?
     initial begin
         for(z = 0;z<3;z=z+1)begin
         for (i = 0; i < IMG_ROWS; i = i + 1) begin
@@ -57,9 +57,9 @@ program automatic stimulate(radar_io.TB io);
     endtask:reset
 
 
-       // æ§åˆ¶ row/col çš„æ»‘åŠ¨é?»è¾‘
+       // æ§åˆ¶ row/col çš„æ»‘åŠ¨ï¿½?ï¿½è¾‘
     
-   //´Ó£¨2£¬2£©¿ªÊ¼µ½£¨2045£¬2045£©
+   //ï¿½Ó£ï¿½2ï¿½ï¿½2ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½2045ï¿½ï¿½2045ï¿½ï¿½
         task get_real_row_col();
             forever begin
             @(io.cb);
@@ -81,12 +81,12 @@ program automatic stimulate(radar_io.TB io);
             end
         endtask:get_real_row_col
 
-        //»ñÈ¡Á½ÁĞÎåĞĞµÄ¿ªÊ¼×ø±ê
+        //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ĞµÄ¿ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½
         task get_row_col();
             forever begin
                 @(io.cb);
                 if(col < IMG_COLS-1) begin
-                    col <= col + 2;  //Ò»ÅÄÊä³öÁ½ÁĞ
+                    col <= col + 2;  //Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 end        
                 else if(row< IMG_ROWS-4) begin
                     col <= 0;
@@ -101,12 +101,12 @@ program automatic stimulate(radar_io.TB io);
             forever begin
             @(io.cb);
             if(io.cb.row_idx1 < 2045 && io.cb.col_idx2< 2045)begin
-                // æ•°æ®çª—å£è¯»å– + è¾¹ç•Œè¡?0
+                // æ•°æ®çª—å£è¯»å– + è¾¹ç•Œï¿½?0
                 for(j=0;j<2;j=j+1)begin
                     for(i = 0;i<5;i=i+1)begin
                         int idx = j*5 + i;
-                        // å½“å‰é€»è¾‘åæ ‡ï¼ˆåŒ…æ‹?è¡?0åŒºåŸŸï¼?
-                            io.cb.pixel_out[DATA_WIDTH*idx +: DATA_WIDTH] <= image_mem[io.cb.channel_num][row+j][col+i];  //²¹ÁãÂß¼­ÓĞÎÊÌâ£¡
+                        // å½“å‰é€»è¾‘åæ ‡ï¼ˆåŒ…ï¿½?ï¿½?0åŒºåŸŸï¿½?
+                            io.cb.pixel_out[DATA_WIDTH*idx +: DATA_WIDTH] <= image_mem[io.cb.channel_num][row+j][col+i];  //ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â£¡
                     end
                 end
             end else if(io.cb.row_idx1 == 2045 && io.cb.col_idx2 == 2045)begin

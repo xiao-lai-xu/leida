@@ -1,5 +1,5 @@
 `timescale 1ns/100ps
-`include "io.sv"
+`include "io_.sv"
 module tb;
    
     parameter simulation_cycle = 400;
@@ -14,7 +14,7 @@ module tb;
     end
 
     radar_io m_io(SystemClock);
-    stimulate_ture m_stimulate(m_io);
+    stimulate m_stimulate(m_io);
 
     dut m_dut(
         .clk(m_io.clock),
