@@ -2,7 +2,7 @@
 `include "io_.sv"
 module tb;
    
-    parameter simulation_cycle = 400;
+    parameter simulation_cycle = 900;
     bit SystemClock;
     
     initial begin
@@ -26,6 +26,7 @@ module tb;
         .channel_num(m_io.channel_num),
         .data_start(m_io.data_start),   
         .data_end(m_io.data_end),
+        .data_vaild(m_io.data_vaild),
         .pixel_out(m_io.pixel_out)
     );
 

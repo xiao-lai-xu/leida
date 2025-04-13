@@ -19,7 +19,7 @@ program automatic stimulate(radar_io.TB io);
         for(z = 0;z<4;z=z+1)begin
         for (i = 0; i < IMG_ROWS; i = i + 1) begin
             for (j = 0; j < IMG_COLS; j = j + 1) begin
-                image_mem[z][i][j] = (i * IMG_COLS + j) % (2**DATA_WIDTH); // �?轰緥鏁版�?
+                image_mem[z][i][j] = (i * IMG_COLS + j) % (2**DATA_WIDTH); // �???轰緥鏁版�???
             end
         end
         end
@@ -50,6 +50,7 @@ program automatic stimulate(radar_io.TB io);
             io.cb.col_idx1 <= 2;
             io.cb.row_idx2 <= 2;
             io.cb.col_idx2 <= 3;
+            io.cb.data_vaild <= 0;
             row <= 0;
             col <= 0;
             io.cb.channel_num <= 0;
@@ -60,9 +61,9 @@ program automatic stimulate(radar_io.TB io);
     endtask:reset
 
 
-       // 鎺у埗 row/col 鐨勬粦鍔�??昏緫
+       // 鎺у埗 row/col 鐨勬粦鍔�????昏緫
     
-   //从（2�?2）开始到�?2045�?2045�?
+   //从（2�???2）开始到�???2045�???2045�???
         task get_real_row_col();
             forever begin
             @(io.cb);
@@ -84,14 +85,14 @@ program automatic stimulate(radar_io.TB io);
             end
         endtask:get_real_row_col
 
-        //获取两列五行的开始坐�?
+        //获取两列五行的开始坐�???
         task get_row_col();
             forever begin
                 @(io.cb);
-                if(col < IMG_COLS-2) begin
-                    col <= col + 2;  //�?拍输出两�?
+                if(col < IMG_COLS) begin
+                    col <= col + 2;  //�???拍输出两�???
                 end        
-                else if(row< IMG_ROWS-4) begin
+                else if(row< IMG_ROWS-5) begin
                     col <= 0;
                     row <= row +1;
                 end
@@ -103,16 +104,26 @@ program automatic stimulate(radar_io.TB io);
         task send();
             forever begin
             @(io.cb);
-            if(io.cb.row_idx1 < 2045 && io.cb.col_idx2< 2045)begin 
-                // 鏁版嵁绐�?彛璇诲彇 + 杈圭晫琛?0
+            //if(io.cb.row_idx1 < 2045 && io.cb.col_idx2< 2045)begin 
+            if(col < 2048 && row< 2044)begin 
+                // 鏁版嵁绐�???彛璇诲彇 + 杈圭晫琛?0
                 for(j=0;j<2;j=j+1)begin
                     for(i = 0;i<5;i=i+1)begin
-                        int idx = j*5 + i;
+                        int idx1 = j*5 + i;
                         // 褰撳墠閫昏緫鍧愭爣锛堝寘鎷�琛�0鍖哄煙锛?
-                            io.cb.pixel_out[DATA_WIDTH*idx +: DATA_WIDTH] <= image_mem[io.cb.channel_num][row+j][col+i]; 
+                            io.cb.pixel_out[DATA_WIDTH*idx1 +: DATA_WIDTH] <= image_mem[io.cb.channel_num][row+i][col+j]; 
+                            io.cb.data_vaild <= 1;
                     end
                 end
-            end else if(io.cb.row_idx1 == 2045 && io.cb.col_idx2 == 2045 && col ==2046 && row ==2044)begin
+            //end else if(io.cb.row_idx1 == 2045 && io.cb.col_idx2 == 2045 && col ==2046 && row ==2043)begin
+            end else if(io.cb.row_idx1 == 2045 && io.cb.col_idx2 == 2045 && col ==2048 && row ==2043)begin
+                for(j=0;j<2;j=j+1)begin
+                    for(i = 0;i<5;i=i+1)begin
+                        int idx2 = j*5 + i;
+                            io.cb.pixel_out[DATA_WIDTH*idx2 +: DATA_WIDTH] <= '0;
+                    end
+                end
+                io.cb.data_vaild <= 0;
                 io.cb.data_end <= 1'b1;
                 io.cb.data_start <= 1'b1;
                 io.cb.channel_num <= io.cb.channel_num + 1;
