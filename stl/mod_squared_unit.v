@@ -1,14 +1,14 @@
 module mod_squared_unit(
     input clk,
     input reset,
-    input [7:0] x,
-    input [7:0] y,
+    input [14:0] x,
+    input [14:0] y,
     input [7:0] conf_bit_mask,
     
-    output reg [15:0] r
+    output reg [29:0] r
 );
-    wire [15:0] mul_r;
-    wire [15:0] mul_r1;
+    wire [29:0] mul_r;
+    wire [29:0] mul_r1;
     
     fixed_int_mul #(.WIDTH(8), .DEC_POINT_POS(4)) m_fixed_int_mul(
         .A(x),
@@ -31,7 +31,7 @@ module mod_squared_unit(
             r <= mul_r1;
         end
     end
-);
+
 
 
 
