@@ -4,8 +4,8 @@
 //Note:        1. This module performs FIXED INTEGER MULTIPLICATION.
 
 module fixed_int_mul
-#(parameter WIDTH = 8,          //Default WIDTH = 8
-  parameter DEC_POINT_POS = 4) 
+#(parameter WIDTH = 10,          //Default WIDTH = 8
+  parameter DEC_POINT_POS = 4)  //Default DEC_POINT_POS = 4
 (
     input [WIDTH-1:0]A,
     input [WIDTH-1:0]B,
